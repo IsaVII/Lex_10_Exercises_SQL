@@ -1,12 +1,31 @@
 package se.lexicon;
 
+import se.lexicon.dao.StudentDao;
+import se.lexicon.dao.StudentDaoImpl;
+import se.lexicon.database.DatabaseConnection;
+import se.lexicon.model.Student;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     void main() {
-        
+
+        try {
+             handleStudentDataBase();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    
+
+    void handleStudentDataBase() throws Exception {
+            createDatabase();
+            createStudentTable();
+            StudentDao studentDao = new StudentDaoImpl(DatabaseConnection.getConnection());
+            addStudents(studentDao);
+            printStudentTable(studentDao);
+
+    }
+
     void runExercise1and2() {
         createDatabase(); //exercise 1.1
         createTable(); //exercise 1.2
@@ -19,6 +38,44 @@ public class Main {
         deleteCourse(2); //exercise 2.3
         printDataTable();
     }
+
+    void createStudentTable(){
+        String createStudentSql =  """
+                CREATE TABLE IF NOT EXISTS students (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                class_group VARCHAR(50) NOT NULL,
+                create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (name, class_group)
+            )""";
+    
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement()) {
+            statement.executeUpdate(createStudentSql);
+            IO.println("Table 'students' created successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void addStudents(StudentDao studentDao) {
+        //insert if not already present
+        studentDao.save(new Student("Alice", "Group A"));
+        studentDao.save(new Student("Bob", "Group B"));
+        studentDao.save(new Student("Charlie", "Group A"));
+        studentDao.save(new Student("David", "Group C"));
+        studentDao.save(new Student("Eve", "Group B"));
+    }
+
+    private void printStudentTable(StudentDao studentDao) {
+        IO.println("Data in 'students' table:");
+        for (Student student : studentDao.findAll()) {
+            IO.println(student);
+        }
+    }
+
+    
 
     private void printDataTable() {
         String selectSql = "SELECT * FROM courses";
