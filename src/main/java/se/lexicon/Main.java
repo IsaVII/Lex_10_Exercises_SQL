@@ -20,80 +20,34 @@ public class Main {
     
     void handleAttendanceDatabase() {
         deleteTable("attendance");
-        createDatabase(); 
         createAttendanceTable();
         addAttendanceData();
         printAttendanceTable();
+        
+        printStudentAttendanceList(); //exercise 4.1
     }
 
-    private void printAttendanceTable() {
-        String selectSql = "SELECT * FROM attendance";
-
+    private void printStudentAttendanceList() {
+        String selectSql =  """
+                SELECT s.name, a.status, a.attendance_date
+                FROM student s
+                JOIN attendance a ON s.id = a.student_id
+                ORDER BY s.name, a.attendance_date""";
+        
         try (var connection = DatabaseConnection.getConnection();
              var statement = connection.createStatement();
              var resultSet = statement.executeQuery(selectSql)) {
-
-            IO.println("Data in 'attendance' table:");
+            IO.println("Student Attendance List:");
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                int studentId = resultSet.getInt("student_id");
+                String name = resultSet.getString("name");
                 String status = resultSet.getString("status");
                 String attendanceDate = resultSet.getString("attendance_date");
-                IO.println("ID: " + id + ", Student ID: " + studentId + ", Status: " + status + ", Attendance Date: " + attendanceDate);
-            }
-
+                IO.println("Name: " + name + ", Status: " + status + ", Attendance Date: " + attendanceDate);
+            }   
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
-    private void addAttendanceData() {
-        String insertSql = """
-                INSERT INTO attendance (student_id, status, attendance_date) VALUES
-                    (1, 'PRESENT', '2024-06-01'),
-                    (2, 'ABSENT', '2024-06-01'),
-                    (3, 'PRESENT', '2024-06-01'),
-                    (4, 'PRESENT', '2024-06-02'),
-                    (5, 'ABSENT', '2024-06-02'),
-                    (6, 'PRESENT', '2024-06-02'),
-                    (7, 'PRESENT', '2024-06-03'),
-                    (8, 'ABSENT', '2024-06-03')
-                ON CONFLICT (student_id, attendance_date) DO NOTHING
-                """;
-
-        try (var connection = DatabaseConnection.getConnection();
-             var statement = connection.createStatement()) {
-            int rowsInserted = statement.executeUpdate(insertSql);
-            IO.println(rowsInserted + " rows inserted into the 'attendance' table.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void createAttendanceTable() {
-        String createAttendanceSql = """
-                CREATE TABLE IF NOT EXISTS attendance (
-                    id SERIAL PRIMARY KEY,
-                    student_id INT NOT NULL,
-                    attendance_date DATE NOT NULL DEFAULT (CURRENT_DATE),
-                    status VARCHAR(10) NOT NULL CHECK (status IN ('PRESENT', 'ABSENT')),
-                    FOREIGN KEY (student_id) REFERENCES student(id),
-                    UNIQUE (student_id, attendance_date)
-                )
-                """;
-
-        try (var connection = DatabaseConnection.getConnection();
-             var statement = connection.createStatement()) {
-            statement.executeUpdate(createAttendanceSql);
-            IO.println("Table 'attendance' created successfully!");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     void handleCourseDatabase() {
         createDatabase(); //exercise 1.1
@@ -122,6 +76,162 @@ public class Main {
 
     }
 
+
+    private void printAttendanceTable() {
+        String selectSql = "SELECT * FROM attendance";
+
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement();
+             var resultSet = statement.executeQuery(selectSql)) {
+
+            IO.println("Data in 'attendance' table:");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                int studentId = resultSet.getInt("student_id");
+                String status = resultSet.getString("status");
+                String attendanceDate = resultSet.getString("attendance_date");
+                IO.println("ID: " + id + ", Student ID: " + studentId + ", Status: " + status + ", Attendance Date: " + attendanceDate);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void addAttendanceData() {
+        String insertSql = """
+            INSERT INTO attendance (student_id, attendance_date, status)
+VALUES (1, '2024-01-01', 'Present'),
+       (2, '2024-01-01', 'Absent'),
+       (3, '2024-01-01', 'Present'),
+       (4, '2024-01-01', 'Present'),
+       (5, '2024-01-01', 'Absent'),
+       (6, '2024-01-01', 'Present'),
+       (7, '2024-01-01', 'Present'),
+       (8, '2024-01-01', 'Absent'),
+       (9, '2024-01-01', 'Present'),
+       (10, '2024-01-01', 'Present'),
+       (11, '2024-01-01', 'Absent'),
+       (12, '2024-01-01', 'Present'),
+       (13, '2024-01-01', 'Present'),
+       (14, '2024-01-01', 'Absent'),
+       (15, '2024-01-01', 'Present'),
+       (1, '2024-01-02', 'Absent'),
+       (2, '2024-01-02', 'Present'),
+       (3, '2024-01-02', 'Absent'),
+       (4, '2024-01-02', 'Present'),
+       (5, '2024-01-02', 'Present'),
+       (6, '2024-01-02', 'Absent'),
+       (7, '2024-01-02', 'Present'),
+       (8, '2024-01-02', 'Present'),
+       (9, '2024-01-02', 'Absent'),
+       (10, '2024-01-02', 'Present'),
+       (11, '2024-01-02', 'Present'),
+       (12, '2024-01-02', 'Absent'),
+       (13, '2024-01-02', 'Present'),
+       (14, '2024-01-02', 'Present'),
+       (15, '2024-01-02', 'Absent'),
+       (1, '2024-01-03', 'Present'),
+       (2, '2024-01-03', 'Present'),
+       (3, '2024-01-03', 'Present'),
+       (4, '2024-01-03', 'Absent'),
+       (5, '2024-01-03', 'Present'),
+       (6, '2024-01-03', 'Present'),
+       (7, '2024-01-03', 'Absent'),
+       (8, '2024-01-03', 'Present'),
+       (9, '2024-01-03', 'Present'),
+       (10, '2024-01-03', 'Absent'),
+       (11, '2024-01-03', 'Present'),
+       (12, '2024-01-03', 'Present'),
+       (13, '2024-01-03', 'Absent'),
+       (14, '2024-01-03', 'Present'),
+       (15, '2024-01-03', 'Present'),
+       (1, '2024-01-04', 'Present'),
+       (2, '2024-01-04', 'Absent'),
+       (3, '2024-01-04', 'Present'),
+       (4, '2024-01-04', 'Present'),
+       (5, '2024-01-04', 'Present'),
+       (6, '2024-01-04', 'Absent'),
+       (7, '2024-01-04', 'Present'),
+       (8, '2024-01-04', 'Present'),
+       (9, '2024-01-04', 'Present'),
+       (10, '2024-01-04', 'Absent'),
+       (11, '2024-01-04', 'Present'),
+       (12, '2024-01-04', 'Present'),
+       (13, '2024-01-04', 'Present'),
+       (14, '2024-01-04', 'Absent'),
+       (15, '2024-01-04', 'Present'),
+       (1, '2024-01-05', 'Absent'),
+       (2, '2024-01-05', 'Present'),
+       (3, '2024-01-05', 'Present'),
+       (4, '2024-01-05', 'Absent'),
+       (5, '2024-01-05', 'Present'),
+       (6, '2024-01-05', 'Present'),
+       (7, '2024-01-05', 'Present'),
+       (8, '2024-01-05', 'Absent'),
+       (9, '2024-01-05', 'Present'),
+       (10, '2024-01-05', 'Present'),
+       (11, '2024-01-05', 'Present'),
+       (12, '2024-01-05', 'Absent'),
+       (13, '2024-01-05', 'Present'),
+       (14, '2024-01-05', 'Present'),
+       (15, '2024-01-05', 'Absent'),
+       (1, '2024-01-06', 'Present'),
+       (2, '2024-01-06', 'Present'),
+       (3, '2024-01-06', 'Absent'),
+       (4, '2024-01-06', 'Present'),
+       (5, '2024-01-06', 'Absent'),
+       (6, '2024-01-06', 'Present'),
+       (7, '2024-01-06', 'Present'),
+       (8, '2024-01-06', 'Present'),
+       (9, '2024-01-06', 'Absent'),
+       (10, '2024-01-06', 'Present'),
+       (11, '2024-01-06', 'Absent'),
+       (12, '2024-01-06', 'Present'),
+       (13, '2024-01-06', 'Present'),
+       (14, '2024-01-06', 'Present'),
+       (15, '2024-01-06', 'Present'),
+       (1, '2024-01-07', 'Present'),
+       (2, '2024-01-07', 'Absent'),
+       (3, '2024-01-07', 'Present'),
+       (4, '2024-01-07', 'Present')
+       """;
+
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement()) {
+            int rowsInserted = statement.executeUpdate(insertSql);
+            IO.println(rowsInserted + " rows inserted into the 'attendance' table.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void createAttendanceTable() {
+        String createAttendanceSql = """
+                CREATE TABLE IF NOT EXISTS attendance (
+                    id SERIAL PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    attendance_date DATE NOT NULL DEFAULT (CURRENT_DATE),
+                    status VARCHAR(10) NOT NULL CHECK (status IN ('Present', 'Absent')),
+                    FOREIGN KEY (student_id) REFERENCES student(id),
+                    UNIQUE (student_id, attendance_date)
+                )
+                """;
+
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement()) {
+            statement.executeUpdate(createAttendanceSql);
+            IO.println("Table 'attendance' created successfully!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    
+    
     private void deleteTable(String tableName) {
         String sql = "DROP TABLE IF EXISTS " + tableName;
         try (var connection = DatabaseConnection.getConnection();
@@ -157,14 +267,21 @@ public class Main {
         //add students to the database if not exist already
         String sql = """
                 INSERT INTO student (name, class_group) VALUES
-                    ('Alice', 'A1'),
-                    ('Bob', 'B1'),
-                    ('Charlie', 'C1'),
-                    ('David', 'A1'),
-                    ('Eve', 'B1'),
-                    ('John', 'C1'),
-                    ('Jane', 'A1'),
-                    ('Jack', 'B1')
+                  ('Erik Andersson', 'G1'),
+                         ('Anna Johansson', 'G1'),
+                         ('Lars Karlsson', 'G2'),
+                         ('Maria Nilsson', 'G2'),
+                         ('Gustav Eriksson', 'G1'),
+                         ('Ingrid Larsson', 'G3'),
+                         ('Olof Olsson', 'G3'),
+                         ('Karin Persson', 'G2'),
+                         ('Anders Svensson', 'G1'),
+                         ('Maja Gustafsson', 'G3'),
+                         ('Nils Pettersson', 'G2'),
+                         ('Astrid Jonsson', 'G3'),
+                         ('Per Hansson', 'G1'),
+                         ('Linnea Bengtsson', 'G2'),
+                         ('Johan Lindberg', 'G3')
                 ON CONFLICT (name, class_group) DO NOTHING
                 """;
         
