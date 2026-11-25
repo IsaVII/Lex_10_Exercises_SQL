@@ -25,6 +25,31 @@ public class Main {
         printAttendanceTable();
         
         printStudentAttendanceList(); //exercise 4.1
+        printAllStudentsWithAttendance(); //exercise 4.2
+    }
+
+    private void printAllStudentsWithAttendance() {
+     
+        
+        String selectSql =  """
+                SELECT s.name, a.status, a.attendance_date
+                FROM student s
+                LEFT JOIN attendance a ON s.id = a.student_id
+                ORDER BY s.name, a.attendance_date""";
+        
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement();
+             var resultSet = statement.executeQuery(selectSql)) {
+            IO.println("All Students with Attendance:");
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                String status = resultSet.getString("status");
+                String attendanceDate = resultSet.getString("attendance_date");
+                IO.println("Name: " + name + ", Status: " + status + ", Attendance Date: " + attendanceDate);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void printStudentAttendanceList() {
