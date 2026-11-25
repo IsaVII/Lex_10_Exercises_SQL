@@ -20,8 +20,12 @@ public class Main {
             createStudentTable();
             addStudents();
             printStudentTable();
+            
+            findStudentByClassGroup("A1");
 
     }
+
+   
 
     void runExercise1and2() {
         createDatabase(); //exercise 1.1
@@ -34,6 +38,7 @@ public class Main {
 
         deleteCourse(2); //exercise 2.3
         printDataTable();
+        
     }
 
     void createStudentTable(){
@@ -98,6 +103,29 @@ public class Main {
         }
     }
 
+    private void findStudentByClassGroup(String classGroup) {
+        String selectSql = "SELECT * FROM student WHERE class_group = ?";
+
+        try (var connection = DatabaseConnection.getConnection();
+             var preparedStatement = connection.prepareStatement(selectSql)) {
+
+            preparedStatement.setString(1, classGroup);
+            try (var resultSet = preparedStatement.executeQuery()) {
+                IO.println("Students in class group '" + classGroup + "':");
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String name = resultSet.getString("name");
+                    String classGroupRes = resultSet.getString("class_group");
+                    IO.println("ID: " + id + ", Name: " + name + ", Class Group: " + classGroupRes);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+   
+    }
+    
     
 
     private void printDataTable() {
