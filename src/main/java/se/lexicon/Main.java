@@ -6,12 +6,93 @@ public class Main {
     void main() {
 
         try {
-             handleStudentDataBase();
+            handleCourseDatabase();
+            IO.println("--------------------------------");
+            
+            handleStudentDataBase();
+            IO.println("--------------------------------");
+            
+            handleAttendanceDatabase();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    void handleAttendanceDatabase() {
+        deleteTable("attendance");
+        createDatabase(); 
+        createAttendanceTable();
+        addAttendanceData();
+        printAttendanceTable();
+    }
+
+    private void printAttendanceTable() {
+        String selectSql = "SELECT * FROM attendance";
+
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement();
+             var resultSet = statement.executeQuery(selectSql)) {
+
+            IO.println("Data in 'attendance' table:");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                int studentId = resultSet.getInt("student_id");
+                String status = resultSet.getString("status");
+                String attendanceDate = resultSet.getString("attendance_date");
+                IO.println("ID: " + id + ", Student ID: " + studentId + ", Status: " + status + ", Attendance Date: " + attendanceDate);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+
+    private void addAttendanceData() {
+        String insertSql = """
+                INSERT INTO attendance (student_id, status, attendance_date) VALUES
+                    (1, 'PRESENT', '2024-06-01'),
+                    (2, 'ABSENT', '2024-06-01'),
+                    (3, 'PRESENT', '2024-06-01'),
+                    (4, 'PRESENT', '2024-06-02'),
+                    (5, 'ABSENT', '2024-06-02'),
+                    (6, 'PRESENT', '2024-06-02'),
+                    (7, 'PRESENT', '2024-06-03'),
+                    (8, 'ABSENT', '2024-06-03')
+                ON CONFLICT (student_id, attendance_date) DO NOTHING
+                """;
+
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement()) {
+            int rowsInserted = statement.executeUpdate(insertSql);
+            IO.println(rowsInserted + " rows inserted into the 'attendance' table.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void createAttendanceTable() {
+        String createAttendanceSql = """
+                CREATE TABLE IF NOT EXISTS attendance (
+                    id SERIAL PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    attendance_date DATE NOT NULL DEFAULT (CURRENT_DATE),
+                    status VARCHAR(10) NOT NULL CHECK (status IN ('PRESENT', 'ABSENT')),
+                    FOREIGN KEY (student_id) REFERENCES student(id),
+                    UNIQUE (student_id, attendance_date)
+                )
+                """;
+
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement()) {
+            statement.executeUpdate(createAttendanceSql);
+            IO.println("Table 'attendance' created successfully!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
     void handleCourseDatabase() {
