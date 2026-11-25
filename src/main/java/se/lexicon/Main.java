@@ -1,6 +1,7 @@
 package se.lexicon;
 
 import se.lexicon.database.DatabaseConnection;
+import se.lexicon.model.AttendanceStatus;
 
 public class Main {
     void main() {
@@ -15,15 +16,35 @@ public class Main {
             handleAttendanceDatabase();
             
             IO.println("--------------------------------");
+            //exercise 5.1
             int totalNumberOfStudents = getTotalNumberOfStudents();
             IO.println("Total student number: " + totalNumberOfStudents);
-            
-            
-            
+
+            //exercise 5.2
+            int presentCount = getAttendanceCount(AttendanceStatus.PRESENT);
+            int absentCount = getAttendanceCount(AttendanceStatus.ABSENT);
+            IO.println("Present count: " + presentCount);
+            IO.println("Absent count: " + absentCount);
             
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private int getAttendanceCount(AttendanceStatus status) {
+        String selectSql = "SELECT COUNT(*) AS total FROM attendance WHERE UPPER(status) = UPPER(?)";
+        try (var connection = DatabaseConnection.getConnection();
+             var preparedStatement = connection.prepareStatement(selectSql)) {
+            preparedStatement.setString(1, status.name());
+            try (var resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("total");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     private int getTotalNumberOfStudents() {
@@ -41,7 +62,6 @@ public class Main {
     }
 
     void handleAttendanceDatabase() {
-        deleteTable("attendance");
         createAttendanceTable();
         addAttendanceData();
         printAttendanceTable();
@@ -113,7 +133,6 @@ public class Main {
 
     void handleStudentDataBase() throws Exception {
             createDatabase();
-            deleteTable("student");
             createStudentTable();
             addStudents();
             printStudentTable(); //exercise 3.1
@@ -243,6 +262,7 @@ VALUES (1, '2024-01-01', 'Present'),
        (2, '2024-01-07', 'Absent'),
        (3, '2024-01-07', 'Present'),
        (4, '2024-01-07', 'Present')
+           ON CONFLICT (student_id, attendance_date) DO NOTHING
        """;
 
         try (var connection = DatabaseConnection.getConnection();
