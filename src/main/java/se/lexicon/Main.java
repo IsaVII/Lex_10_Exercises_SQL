@@ -1,10 +1,7 @@
 package se.lexicon;
 
 import se.lexicon.database.DatabaseConnection;
-import se.lexicon.model.Student;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     void main() {
 
@@ -15,15 +12,32 @@ public class Main {
         }
     }
 
+
+
+    void handleCourseDatabase() {
+        createDatabase(); //exercise 1.1
+        createTable(); //exercise 1.2
+        insertData(); //exercise 2.1
+        printDataTable();
+
+        updateData("Java Programming", 1); //exercise 2.2
+        printDataTable();
+
+        deleteCourse(2); //exercise 2.3
+        printDataTable();
+
+    }
+
+
     void handleStudentDataBase() throws Exception {
             createDatabase();
             deleteTable("student");
             createStudentTable();
             addStudents();
-            printStudentTable();
+            printStudentTable(); //exercise 3.1
             
-            findStudentByClassGroup("A1");
-            findStudentByFirstLetter("J");
+            findStudentByClassGroup("A1"); //exercise 3.2
+            findStudentByFirstLetter("J"); //exercise 3.3
 
     }
 
@@ -36,20 +50,6 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    void runExercise1and2() {
-        createDatabase(); //exercise 1.1
-        createTable(); //exercise 1.2
-        insertData(); //exercise 2.1
-        printDataTable();
-
-        updateData("Java Programming", 1); //exercise 2.2
-        printDataTable();
-
-        deleteCourse(2); //exercise 2.3
-        printDataTable();
-        
     }
 
     void createStudentTable(){
