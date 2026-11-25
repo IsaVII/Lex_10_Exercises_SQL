@@ -1,7 +1,5 @@
 package se.lexicon;
 
-import se.lexicon.dao.StudentDao;
-import se.lexicon.dao.StudentDaoImpl;
 import se.lexicon.database.DatabaseConnection;
 import se.lexicon.model.Student;
 
@@ -20,9 +18,8 @@ public class Main {
     void handleStudentDataBase() throws Exception {
             createDatabase();
             createStudentTable();
-            StudentDao studentDao = new StudentDaoImpl(DatabaseConnection.getConnection());
-            addStudents(studentDao);
-            printStudentTable(studentDao);
+            addStudents();
+            printStudentTable();
 
     }
 
@@ -41,7 +38,7 @@ public class Main {
 
     void createStudentTable(){
         String createStudentSql =  """
-                CREATE TABLE IF NOT EXISTS students (
+                CREATE TABLE IF NOT EXISTS student (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100) NOT NULL,
                 class_group VARCHAR(50) NOT NULL,
@@ -52,26 +49,52 @@ public class Main {
         try (var connection = DatabaseConnection.getConnection();
              var statement = connection.createStatement()) {
             statement.executeUpdate(createStudentSql);
-            IO.println("Table 'students' created successfully!");
+            IO.println("Table 'student' created successfully!");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-    private void addStudents(StudentDao studentDao) {
-        //insert if not already present
-        studentDao.save(new Student("Alice", "Group A"));
-        studentDao.save(new Student("Bob", "Group B"));
-        studentDao.save(new Student("Charlie", "Group A"));
-        studentDao.save(new Student("David", "Group C"));
-        studentDao.save(new Student("Eve", "Group B"));
+    private void addStudents() {
+        //add students to the database if not exist already
+        String sql = """
+                INSERT INTO student (name, class_group) VALUES
+                    ('Alice', 'A1'),
+                    ('Bob', 'B1'),
+                    ('Charlie', 'C1'),
+                    ('David', 'A1'),
+                    ('Eve', 'B1')
+                ON CONFLICT (name, class_group) DO NOTHING
+                """;
+        
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement()) {
+            int rowsInserted = statement.executeUpdate(sql);
+            IO.println(rowsInserted + " rows inserted into the 'student' table.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
     }
 
-    private void printStudentTable(StudentDao studentDao) {
-        IO.println("Data in 'students' table:");
-        for (Student student : studentDao.findAll()) {
-            IO.println(student);
+    private void printStudentTable() {
+        String selectSql = "SELECT * FROM student";
+
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement();
+             var resultSet = statement.executeQuery(selectSql)) {
+
+            IO.println("Data in 'student' table:");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                String classGroup = resultSet.getString("class_group");
+                IO.println("ID: " + id + ", Name: " + name + ", Class Group: " + classGroup);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
