@@ -17,15 +17,26 @@ public class Main {
 
     void handleStudentDataBase() throws Exception {
             createDatabase();
+            deleteTable("student");
             createStudentTable();
             addStudents();
             printStudentTable();
             
             findStudentByClassGroup("A1");
+            findStudentByFirstLetter("J");
 
     }
 
-   
+    private void deleteTable(String tableName) {
+        String sql = "DROP TABLE IF EXISTS " + tableName;
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement()) {
+            statement.executeUpdate(sql);
+            IO.println("Table '" + tableName + "' deleted successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     void runExercise1and2() {
         createDatabase(); //exercise 1.1
@@ -69,7 +80,10 @@ public class Main {
                     ('Bob', 'B1'),
                     ('Charlie', 'C1'),
                     ('David', 'A1'),
-                    ('Eve', 'B1')
+                    ('Eve', 'B1'),
+                    ('John', 'C1'),
+                    ('Jane', 'A1'),
+                    ('Jack', 'B1')
                 ON CONFLICT (name, class_group) DO NOTHING
                 """;
         
@@ -125,8 +139,32 @@ public class Main {
         }
    
     }
-    
-    
+
+    private void findStudentByFirstLetter(String startLetter) {
+        String letter = startLetter.trim().toUpperCase();
+        String selectSql = "SELECT * FROM student WHERE UPPER(name) LIKE ?";
+
+        try (var connection = DatabaseConnection.getConnection();
+             var preparedStatement = connection.prepareStatement(selectSql)) {
+
+            preparedStatement.setString(1, letter + "%");
+            try (var resultSet = preparedStatement.executeQuery()) {
+                IO.println("Students whose names start with '" + letter + "':");
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String name = resultSet.getString("name");
+                    String classGroupRes = resultSet.getString("class_group");
+                    IO.println("ID: " + id + ", Name: " + name + ", Class Group: " + classGroupRes);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 
     private void printDataTable() {
         String selectSql = "SELECT * FROM courses";
