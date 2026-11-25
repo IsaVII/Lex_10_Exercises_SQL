@@ -4,26 +4,48 @@ package se.lexicon;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     void main() {
-        exercise_1_1();
-        exercise_1_2();
+        createDatabase(); //exercise 1.1
+        createTable(); //exercise 1.2
+        insertData(); //exercise 2.1
+        printDataTable();
     }
-    
-    
-    //Create a database
-    void exercise_1_1() {
-        DatabaseConnection.setDatabaseName("school_management");
-        
-        try {
-            DatabaseConnection.getConnection();
-            IO.println("Connection to database successful!");
-            
+
+    private void printDataTable() {
+        String selectSql = "SELECT * FROM courses";
+
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement();
+             var resultSet = statement.executeQuery(selectSql)) {
+
+            IO.println("Data in 'courses' table:");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String courseName = resultSet.getString("course_name");
+                int credits = resultSet.getInt("credits");
+                IO.println("ID: " + id + ", Course Name: " + courseName + ", Credits: " + credits);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
+
+    //Create a database
+    void createDatabase() {
+        DatabaseConnection.setDatabaseName("school_management");
+
+        try {
+            DatabaseConnection.getConnection();
+            IO.println("Connection to database successful!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     //Create Tables
-    void exercise_1_2(){
+    void createTable() {
         String createSql = """
                 CREATE TABLE IF NOT EXISTS courses (  
                     id SERIAL PRIMARY KEY,           
@@ -31,14 +53,33 @@ public class Main {
                     credits INT NOT NULL
                 )
                 """;
-        
+
         try (var connection = DatabaseConnection.getConnection();
              var statement = connection.createStatement()) {
             statement.executeUpdate(createSql);
             IO.println("Table 'courses' created successfully!");
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-}
+
+    //Insert data into the table
+    void insertData() {
+        String insertSql = """
+                INSERT INTO courses (course_name, credits) VALUES
+                    ('Java Programming', 3),
+                    ('SQL Basics', 4),
+                    ('Web Development', 2)
+                """;
+ 
+         try (var connection = DatabaseConnection.getConnection();
+              var statement = connection.createStatement()) {
+             int rowsInserted = statement.executeUpdate(insertSql);
+             IO.println(rowsInserted + " rows inserted into the 'courses' table.");
+
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
+    }
+}               
