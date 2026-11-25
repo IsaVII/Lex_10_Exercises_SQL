@@ -8,7 +8,11 @@ public class Main {
         createTable(); //exercise 1.2
         insertData(); //exercise 2.1
         printDataTable();
+        updateData("Java Programming", 1); //exercise 2.2
+        printDataTable();
     }
+
+
 
     private void printDataTable() {
         String selectSql = "SELECT * FROM courses";
@@ -47,9 +51,9 @@ public class Main {
     //Create Tables
     void createTable() {
         String createSql = """
-                CREATE TABLE IF NOT EXISTS courses (  
-                    id SERIAL PRIMARY KEY,           
-                    course_name VARCHAR(100) NOT NULL,
+                CREATE TABLE IF NOT EXISTS courses (
+                    id SERIAL PRIMARY KEY,
+                    course_name VARCHAR(100) NOT NULL UNIQUE,
                     credits INT NOT NULL
                 )
                 """;
@@ -66,11 +70,14 @@ public class Main {
 
     //Insert data into the table
     void insertData() {
+        
+        //insert if not already present
         String insertSql = """
                 INSERT INTO courses (course_name, credits) VALUES
                     ('Java Programming', 3),
                     ('SQL Basics', 4),
                     ('Web Development', 2)
+                ON CONFLICT (course_name) DO NOTHING
                 """;
  
          try (var connection = DatabaseConnection.getConnection();
@@ -81,5 +88,26 @@ public class Main {
          } catch (Exception e) {
              e.printStackTrace();
          }
+    }
+
+
+    private void updateData(String courseName, int creditsAddition) {
+        String updateSql = "UPDATE courses SET credits = credits + ? WHERE course_name = ?";
+
+        try (var connection = DatabaseConnection.getConnection();
+             var preparedStatement = connection.prepareStatement(updateSql)) {
+
+            preparedStatement.setInt(1, creditsAddition);
+            preparedStatement.setString(2, courseName);
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+            IO.println(rowsUpdated + " rows updated in the 'courses' table.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+         
+        
+       
     }
 }               
