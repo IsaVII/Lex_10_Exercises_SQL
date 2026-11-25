@@ -26,6 +26,31 @@ public class Main {
             IO.println("Present count: " + presentCount);
             IO.println("Absent count: " + absentCount);
             
+            //exercise 5.3
+            printPresentForEachStudent();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void printPresentForEachStudent() {
+        /*Calculate the number of days each student has been 'Present'. Display the student's name and the count.*/
+        String selectSql = """
+                SELECT s.name, COUNT(a.status) AS present_count
+                FROM student s
+                LEFT JOIN attendance a ON s.id = a.student_id AND UPPER(a.status) = 'PRESENT'
+                GROUP BY s.name
+                ORDER BY s.name""";
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement();
+             var resultSet = statement.executeQuery(selectSql)) {
+            IO.println("Present count for each student:");
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                int presentCount = resultSet.getInt("present_count");
+                IO.println("Name: " + name + ", Present Count: " + presentCount);       
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
