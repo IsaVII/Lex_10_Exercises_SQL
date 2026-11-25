@@ -8,9 +8,14 @@ public class Main {
         createTable(); //exercise 1.2
         insertData(); //exercise 2.1
         printDataTable();
+        
         updateData("Java Programming", 1); //exercise 2.2
         printDataTable();
+        
+        deleteCourse(2); //exercise 2.3
+        printDataTable();
     }
+
 
 
 
@@ -106,8 +111,23 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-         
-        
-       
+    }
+
+    private void deleteCourse(int id) {
+        String deleteSql = "DELETE FROM courses WHERE id = ?";
+
+        try (var connection = DatabaseConnection.getConnection();
+             var preparedStatement = connection.prepareStatement(deleteSql)) {
+
+            preparedStatement.setInt(1, id);
+
+            int rowsDeleted = preparedStatement.executeUpdate();
+            IO.println(rowsDeleted + " rows deleted from the 'courses' table.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    
+    
     }
 }               
