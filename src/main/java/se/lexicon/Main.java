@@ -13,11 +13,33 @@ public class Main {
             IO.println("--------------------------------");
             
             handleAttendanceDatabase();
+            
+            IO.println("--------------------------------");
+            int totalNumberOfStudents = getTotalNumberOfStudents();
+            IO.println("Total student number: " + totalNumberOfStudents);
+            
+            
+            
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
+    private int getTotalNumberOfStudents() {
+        String selectSql = "SELECT COUNT(*) AS total FROM student";
+        try (var connection = DatabaseConnection.getConnection();
+             var statement = connection.createStatement();
+             var resultSet = statement.executeQuery(selectSql)) {
+            if (resultSet.next()) {
+                return resultSet.getInt("total");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     void handleAttendanceDatabase() {
         deleteTable("attendance");
         createAttendanceTable();
