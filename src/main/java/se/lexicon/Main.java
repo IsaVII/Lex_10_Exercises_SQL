@@ -4,20 +4,21 @@ package se.lexicon;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     void main() {
+        
+    }
+    
+    void runExercise1and2() {
         createDatabase(); //exercise 1.1
         createTable(); //exercise 1.2
         insertData(); //exercise 2.1
         printDataTable();
-        
+
         updateData("Java Programming", 1); //exercise 2.2
         printDataTable();
-        
+
         deleteCourse(2); //exercise 2.3
         printDataTable();
     }
-
-
-
 
     private void printDataTable() {
         String selectSql = "SELECT * FROM courses";
